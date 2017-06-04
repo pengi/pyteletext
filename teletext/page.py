@@ -1,53 +1,60 @@
 import packet
 import time
 from .constants import *
+from .settings import *
 
 def get_default_clock():
 	return time.strftime("%H:%M:%S")
 
 class Page:
-	def __init__(self, page_num, headertext="", headercolor=None, **flags):
-		self.magazine = (page_num & 0x700)>>8
-		self.page_num = page_num & 0x0ff
-		self.headertext = headertext
-		self.flags = flags
+	def __init__(self, headercolor=None, **settings):
+		self.settings = defaults(settings,
+			headertext = "",
+			page_num = 0,
+			sub_code = 0
+		)
 
 		if headercolor != None:
-			self.headertext = headercolor + self.headertext + COL_WHITE
+			self.settings['headertext'] = headercolor + self.settings['headertext'] + COL_WHITE
 
-	def render(self, out, clocktext=None, subcode=0, magazine=None, page_num=None):
-		if magazine == None:
-			magazine = self.magazine
-		if page_num == None:
-			page_num = self.page_num
+	def render(self, out, clocktext = None, **settings):
+		settings = apply(self.settings, **settings)
+
 		if clocktext == None:
 			clocktext = get_default_clock()
-		headertext = (self.headertext + (" "*24))[:24] + clocktext
-		out.write(packet.packet_page_header(magazine, page_num, subcode, headertext, **self.flags))
+
+		headertext = (settings['headertext'] + (" "*24))[:24] + clocktext
+
+		out.write(packet.packet_page_header(headertext, **settings))
 		for i in range(24):
-			out.write(packet.packet_direct_display(magazine, i+1, self.get_line(i)))
+			out.write(packet.packet_direct_display(i+1, self.get_line(i), **settings))
 
 	def get_line(self, y):
 		return "." * 40
 
 class RotationPage(Page):
-	def __init__(self, *args, **kvargs):
-		Page.__init__(self, *args, **kvargs)
+	def __init__(self, **settings):
+		Page.__init__(self, **settings)
 		self.pages=[]
 		self.lastpage=0
 
 	def add_page(self, page):
 		self.pages.append(page)
 
-	def render(self, out, clocktext=None):
+	def render(self, out, clocktext=None, **settings):
+		settings = apply(self.settings, **settings)
+
 		self.lastpage = (self.lastpage+1) % len(self.pages)
 		num = self.lastpage + 1
-		subcode = ((num/10) << 4) | (num%10)
-		self.pages[self.lastpage].render(out, clocktext, subcode = subcode, magazine = self.magazine, page_num = self.page_num)
+
+		page = self.pages[self.lastpage]
+		sub_code = ((num/10) << 4) | (num%10)
+
+		page.render(out, clocktext, **apply(settings, sub_code=sub_code))
 
 class StaticPage(Page):
-	def __init__(self, *args, **kvargs):
-		Page.__init__(self, *args, **kvargs)
+	def __init__(self, **settings):
+		Page.__init__(self, **settings)
 		self.content = [" "*40]*24
 
 	def get_line(self, y):
@@ -65,9 +72,9 @@ class StaticPage(Page):
 		self.content[y] = self.content[y][:x] + data + self.content[y][x+len(data):]
 		self.content[y] = self.content[y][:40]
 
-	def putbox(self, x, y, w, h, data, **kvargs):
+	def putbox(self, x, y, w, h, data, **style):
 		lines = data.splitlines() + [""]*h
 		for yi in range(h):
 			line = lines[yi] + " "*w
 			line = line[:w]
-			self.putstring(x, y+yi, line, **kvargs)
+			self.putstring(x, y+yi, line, **style)
