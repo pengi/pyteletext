@@ -1,10 +1,12 @@
 import teletext
+from pybitbucket.bitbucket import Client
 from pybitbucket.pullrequest import PullRequest
 import itertools
 
-def render_pullrequest(page, header_render, client, owner, repo):
+def render_pullrequest(page, header_render, auth, owner, repo):
 	row = header_render(page, "pull requests", owner+"/"+repo)
 
+	client = Client(auth)
 	prs_open = PullRequest.find_pullrequests_for_repository_by_state(repo, owner=owner, client=client, state='OPEN')
 	prs_merged = PullRequest.find_pullrequests_for_repository_by_state(repo, owner=owner, client=client, state='MERGED')
 

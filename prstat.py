@@ -1,7 +1,6 @@
 import teletext
 import subprocess
 
-from pybitbucket.bitbucket import Client
 from pybitbucket.auth import BasicAuthenticator, Anonymous
 from ttxtemplates.bitbucket import render_pullrequest
 
@@ -13,10 +12,10 @@ def header_render(page, title, subtitle):
 	page.putstring(0,3,"%36s " % (subtitle,), **style)
 	return 4
 
-#bbclient = Client(BasicAuthenticator('username', 'apikey', 'email'))
-bbclient = Client(Anonymous())
+#bbauth = BasicAuthenticator('username', 'apikey', 'email')
+bbauth = Anonymous()
 pages = [
-	teletext.DynamicPage(render_pullrequest, [header_render, bbclient, 'atlassian', 'python-bitbucket'], 10.0, page_num=0x100),
+	teletext.DynamicPage(render_pullrequest, [header_render, bbauth, 'atlassian', 'python-bitbucket'], 10.0, page_num=0x100),
 	]
 
 teletext_app = "../raspi-teletext/teletext"
