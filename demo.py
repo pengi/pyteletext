@@ -1,7 +1,7 @@
 import teletext
 import sys
 import os
-import time
+import datetime
 
 out = os.fdopen(sys.stdout.fileno(), 'w', 42*8)
 
@@ -21,11 +21,18 @@ def color_page(page_num):
 
 	return page
 
+def renderer(page, content):
+	timestring = datetime.datetime.now().strftime("%H:%M:%S")
+	page.putstring(5, 5, content, size=teletext.SIZE_DOUBLE_H)
+	page.putstring(5, 7, timestring, size=teletext.SIZE_DOUBLE_H)
+
 pages = [
 	teletext.StaticPage(page_num=0x100),
 	teletext.StaticPage(page_num=0x101),
 	teletext.StaticPage(page_num=0x102),
 	teletext.RotationPage(page_num=0x103),
+	teletext.DynamicPage(renderer, ["Page A"], 1.0, page_num=0x200),
+	teletext.DynamicPage(renderer, ["Page B"], 10.0, page_num=0x201),
 	color_page(0x800)
 	]
 
