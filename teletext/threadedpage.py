@@ -39,8 +39,10 @@ class DynamicPage(BufferedPage):
 		self.thread.join()
 
 	def run(self):
+		self.clear()
 		self.renderer(self, *self.renderer_args)
 		self.flush()
 		while not self.stop_event.wait(self.interval):
-				self.renderer(self, *self.renderer_args)
-				self.flush()
+			self.clear()
+			self.renderer(self, *self.renderer_args)
+			self.flush()

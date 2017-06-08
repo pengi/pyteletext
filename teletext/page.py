@@ -55,10 +55,13 @@ class RotationPage(Page):
 class StaticPage(Page):
 	def __init__(self, **settings):
 		Page.__init__(self, **settings)
-		self.content = [" "*40]*24
+		self.clear()
 
 	def get_line(self, y):
 		return self.content[y]
+
+	def clear(self):
+		self.content = [" "*40]*24
 	
 	def putstring(self, x, y, data, color=None, background=None, size=None):
 		if y < 0 or y >= len(self.content):
