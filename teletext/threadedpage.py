@@ -1,5 +1,12 @@
 from .page import StaticPage
 from threading import Lock, Thread, Event
+import traceback
+
+def exception_page(page, e):
+	page.clear()
+	exception_info = traceback.format_exc()
+	print exception_info
+	page.putbox(0,0,40,24, exception_info)
 
 class BufferedPage(StaticPage):
 	def __init__(self, **settings):
@@ -40,9 +47,15 @@ class DynamicPage(BufferedPage):
 
 	def run(self):
 		self.clear()
-		self.renderer(self, *self.renderer_args)
+		try:
+			self.renderer(self, *self.renderer_args)
+		except Exception as e:
+			exception_page(self, e)
 		self.flush()
 		while not self.stop_event.wait(self.interval):
 			self.clear()
-			self.renderer(self, *self.renderer_args)
+			try:
+				self.renderer(self, *self.renderer_args)
+			except Exception as e:
+				exception_page(self, e)
 			self.flush()
