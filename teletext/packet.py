@@ -32,7 +32,7 @@ def packet_page_header( data, **settings ):
 			interrupted_sequence=False,
 			inhibit_display=False,
 			magazine_serial=False,
-			national_option_character=0
+			national_option_character=2
 	)
 	return \
 		packet_header(0, **settings) + \

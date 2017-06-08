@@ -1,0 +1,15 @@
+certifi==2017.4.17
+chardet==3.0.3
+enum34==1.1.6
+future==0.16.0
+idna==2.5
+oauthlib==2.0.2
+pkg-resources==0.0.0
+pybitbucket==0.12.0
+requests==2.17.3
+requests-oauthlib==0.8.0
+simplejson==3.10.0
+six==1.10.0
+uritemplate==0.6
+urllib3==1.21.1
+voluptuous==0.10.5
