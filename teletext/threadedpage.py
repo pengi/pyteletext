@@ -7,6 +7,7 @@ def exception_page(page, e):
 	exception_info = traceback.format_exc()
 	print exception_info
 	page.putbox(0,0,40,24, exception_info)
+	print "Retrying..."
 
 class BufferedPage(StaticPage):
 	def __init__(self, **settings):
