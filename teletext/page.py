@@ -52,6 +52,28 @@ class RotationPage(Page):
 
 		page.render(out, clocktext, **apply(settings, sub_code=sub_code))
 
+class SlideshowPage(Page):
+	def __init__(self, interval=10.0, **settings):
+		Page.__init__(self, **settings)
+		self.interval = interval
+		self.pages=[]
+
+	def add_page(self, page):
+		self.pages.append(page)
+
+	def render(self, out, clocktext=None, **settings):
+		settings = apply(self.settings, **settings)
+		cycletime = self.interval * len(self.pages)
+
+		pageno = int((time.time() % cycletime)/self.interval)
+		if pageno < 0:
+			pageno = 0
+		if pageno >= len(self.pages):
+			pageno = len(self.pages)-1
+		page = self.pages[pageno]
+
+		page.render(out, clocktext, **settings)
+
 class StaticPage(Page):
 	def __init__(self, **settings):
 		Page.__init__(self, **settings)
