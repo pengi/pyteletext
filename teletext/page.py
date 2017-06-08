@@ -61,6 +61,8 @@ class StaticPage(Page):
 		return self.content[y]
 	
 	def putstring(self, x, y, data, color=None, background=None, size=None):
+		if y < 0 or y >= len(self.content):
+			return
 		if size != None:
 			if size == SIZE_DOUBLE_W or size == SIZE_DOUBLE:
 				data = " ".join(data) + " "
