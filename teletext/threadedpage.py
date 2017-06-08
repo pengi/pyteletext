@@ -1,5 +1,5 @@
 from .page import StaticPage
-from threading import Lock, Timer
+from threading import Lock, Thread, Event
 
 class BufferedPage(StaticPage):
 	def __init__(self, **settings):
@@ -28,14 +28,17 @@ class DynamicPage(BufferedPage):
 		self.renderer = renderer
 		self.renderer_args = args
 
-		self.start()
+		self.stop_event = Event()
 
+		self.thread = Thread(target=self.run)
+		self.thread.daemon = True
+		self.thread.start()
 
-	def start(self):
-		self.timer = Timer(self.interval, self.run)
-		self.timer.start()
+	def stop(self):
+		self.stop_event.set()
+		self.thread.join()
 
 	def run(self):
-		self.renderer(self, *self.renderer_args)
-		self.flush()
-		self.start()
+		while not self.stop_event.wait(self.interval):
+				self.renderer(self, *self.renderer_args)
+				self.flush()
